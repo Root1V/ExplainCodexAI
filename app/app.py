@@ -9,12 +9,13 @@ class App:
     def __init__(self) -> None:
         self.config = Config.get_all()
         self.client = OpenAI()
+        self.PROMPT = Config.load_prompt()
+
+        print("PROMPT SYS:\n", self.PROMPT)
 
     def comment_code(self, code):
         """Envía el código al LLM para obtener comentarios."""
-        prompt = (
-            f"Comenta el siguiente código Python con explicaciones claras:\n\n{code}"
-        )
+        prompt = f"Comenta el siguiente código Python:\n\n{code}"
 
         message = self.client.chat.completions.create(
             model=self.config["model"],
@@ -23,7 +24,7 @@ class App:
             messages=[
                 {
                     "role": "system",
-                    "content": "You are an expert python programmer and can comment the code clearly. In your answer do not add any explanation at the beginning or at the end of the code, just return the commented code without ```. Comment the code using only Docstring in a consistent way",
+                    "content": self.PROMPT,
                 },
                 {"role": "user", "content": prompt},
             ],
